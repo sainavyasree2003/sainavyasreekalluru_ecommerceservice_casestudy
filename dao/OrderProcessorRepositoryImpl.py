@@ -62,7 +62,7 @@ class customers(main1):
             self.conn.commit()
             print('--customer registered successfully--')
         except Exception as e:
-            print(f"error in inserting customer:{e}")
+            print(f"error in registering customer:{e}")
         finally:
              self.close()
 
@@ -74,7 +74,6 @@ class customers(main1):
             data =[self.customer_id]
             self.stmt.execute(select_str, data)
             records = self.stmt.fetchall()
-            #print('')
             if records:
               print('_______Records In Customers Table___')
             for i in records:
@@ -90,7 +89,6 @@ class customers(main1):
         finally:
             self.close()
 
-
     def update_customer(self):
         try:
             self.customer_id = int(input('Enter customer_id which is to be updated:'))
@@ -100,7 +98,7 @@ class customers(main1):
             update_str = 'update customers set customer_name =%s,email = %s,customer_password= %s where customer_id=%s'
             self.open()
 
-            data = [(self.customer_name, self.email, self.customer_password, self.customer_id)]
+            data = [(self.customer_id,self.customer_name, self.email, self.customer_password)]
 
             self.stmt.executemany(update_str, data)
             self.conn.commit()
@@ -152,7 +150,7 @@ class products(main1):
             self.stmt.close()
             print('Table created successfully-------:')
         except Exception as e:
-            print(f"error creating table customers:{e}")
+            print(f"error creating table products:{e}")
 
     def add_product(self):
         try:
@@ -219,7 +217,7 @@ class products(main1):
             self.stmt.executemany(update_str, data)
             self.conn.commit()
             if self.stmt.rowcount == 0:
-                print(f"no records found to update for customer_id{self.customer_id}.")
+                print(f"no records found to update for product_id{self.product_id}.")
             else:
                 print(update_str, data)
                 print('Records updated successfully...')
@@ -270,7 +268,7 @@ class cart(main1):
             self.cart_id = int(input('Enter cart_id:'))
             self.customer_id = int(input('Enter customer_id:'))
             self.product_id = int(input('Enter product_id:'))
-            self.quantity = int(input("enter quantity"))
+            self.quantity = int(input("enter quantity:"))
             print(self.cart_id, self.customer_id, self.product_id, self.quantity)
 
             data = [(self.cart_id, self.customer_id, self.product_id, self.quantity)]
@@ -286,7 +284,6 @@ class cart(main1):
             print(f"error in inserting cart:{e}")
         finally:
             self.close()
-
 
     def select_cart(self):
         try:
@@ -310,7 +307,6 @@ class cart(main1):
         finally:
             self.close()
 
-
     def update_cart(self):
         try:
            self.cart_id = int(input('Enter cart_id that has to be updated:'))
@@ -326,7 +322,7 @@ class cart(main1):
            self.stmt.executemany(update_str, data)
            self.conn.commit()
            if self.stmt.rowcount == 0:
-                print(f"no records found to update for customer_id{self.customer_id}.")
+                print(f"no records found to update for cart_id:{self.cart_id}.")
            else:
             print(update_str, data)
             print('Records updated successfully...')
@@ -348,7 +344,6 @@ class cart(main1):
             print('Records Deleted Successfully--------')
         except Exception as e:
             print(f'An error occurred: {e}')
-
 
 class orders(main1):
     def _init_(self):
@@ -379,7 +374,7 @@ class orders(main1):
         try:
             self.order_id = int(input('Enter order_id:'))
             self.customer_id = int(input('Enter customer_id:'))
-            self.order_date = input('Enter order_date: ')
+            self.order_date = input('Enter order_date(yyyy-mm-dd): ')
             self.total_price = int(input("total_price: "))
             self.shipping_address = input('enter shipping_address:')
             print(self.order_id, self.customer_id, self.order_date, self.total_price, self.shipping_address)
@@ -396,7 +391,6 @@ class orders(main1):
             print(f"error in inserting customer:{e}")
         finally:
             self.close()
-
 
     def select_order(self):
         try:
@@ -426,7 +420,7 @@ class orders(main1):
         try:
             self.order_id = int(input('Enter order_id that has to be updated:'))
             self.customer_id = int(input('Enter customer_id :'))
-            self.order_date = input('Enter order_date: ')
+            self.order_date = input('Enter order_date(yyyy-mm-dd): ')
             self.total_price = int(input("total_price: "))
             self.shipping_address = input('enter shipping_address:')
             update_str = 'update orders set customer_id = %s,order_date = %s,total_price=%s,shipping_address=%s where order_id=%s'
@@ -437,7 +431,7 @@ class orders(main1):
             self.stmt.executemany(update_str, data)
             self.conn.commit()
             if self.stmt.rowcount == 0:
-                print(f"no records found to update for customer_id{self.customer_id}.")
+                print(f"no records found to update for order_id:{self.order_id}.")
             else:
                 print(update_str, data)
                 print('Records updated successfully...')
@@ -505,43 +499,53 @@ class order_items(main1):
     def select_orderitem(self):
         try:
             self.product_id=int(input("enter product_id to find whether ordered or not:"))
-            data=[self.product_id]
             select_str = '''select * from order_items where product_id=%s'''
+            data = [self.product_id]
             self.open()
             self.stmt.execute(select_str, data)
             records = self.stmt.fetchall()
             print('')
-            print('_______Records In cart Table___')
+            if records:
+                print('_______Records In order_items Table___')
+            for i in records:
+                print(i)
+            else:
+                self.close()
+            raise ProductNotFoundException("entered product_id is not found")
+        except ProductNotFoundException as e:
+            print(e)
+        except Exception as e:
+            print(str(e) + "---error in getting order_items:---")
+
             for i in records:
               print(i)
             return True
-
         except Exception as e:
              print(f"error while getting order_items:{e}")
         finally:
             self.close()
 
 
-def update_orderitem(self):
-    try:
-        self.order_item_id = int(input('Enter order_item_id which is to be updated:'))
-        self.order_id = int(input('Enter order_id:'))
-        self.product_id = int(input('Enter product_id: '))
-        self.quantity = int(input("quantity: "))
-        update_str = 'update order_items set order_id =%s,product_id = %s,quantity=%s where order_item_id = %s'
-        self.open()
+    def update_orderitem(self):
+        try:
+             self.order_item_id = int(input('Enter order_item_id which is to be updated:'))
+             self.order_id = int(input('Enter order_id:'))
+             self.product_id = int(input('Enter product_id: '))
+             self.quantity = int(input("quantity: "))
+             update_str = 'update order_items set order_id =%s,product_id = %s,quantity=%s where order_item_id = %s'
+             self.open()
 
-        data = [(self.order_item_id, self.order_id, self.product_id, self.quantity)]
+             data = [( self.order_id, self.product_id, self.quantity,self.order_item_id)]
 
-        self.stmt.executemany(update_str, data)
-        self.conn.commit()
-        if self.stmt.rowcount == 0:
-            print(f"no records found to update for customer_id{self.customer_id}.")
-        else:
-            print(update_str, data)
-            print('Records updated successfully...')
-    except Exception as e:
-        print(f'error updating table: {e}')
+             self.stmt.executemany(update_str, data)
+             self.conn.commit()
+             if self.stmt.rowcount == 0:
+                 print(f"no records found to update for order_item_id:{self.order_item_id}.")
+             else:
+                 print(update_str, data)
+                 print('Records updated successfully...')
+        except Exception as e:
+             print(f'error updating table: {e}')
 
     def delete_orderitem(self):
         try:
@@ -556,41 +560,7 @@ def update_orderitem(self):
             else:
                print('Records Deleted Successfully--------')
         except Exception as e:
-           print(f"error creating table customers:{e}")
-
-
-obj1 = customers()
-#obj1.create_customer()
-#obj1.add_customer()
-#obj1.select_customer()
-#obj1.update_customer()
-#obj1.delete_customer()
-obj2 = products()
-#obj2.create_product()
-#obj2.select_product()
-#obj2.add_product()
-#obj2.update_product()
-#obj2.delete_product()19
-obj3 = cart()
-#obj3.create_cart()
-#obj3.add_cart()
-#obj3.select_cart()
-#obj3.update_cart()
-#obj3.delete_cart()
-obj4 = orders()
-#obj4=create_order()
-#obj4.add_order()
-#obj4.select_order()
-#obj4.update_order()
-#obj4.delete_order()
-obj5 = order_items()
-#obj5.create_orderitem()
-#obj5.add_orderitem()
-#obj5.select_orderitem()
-#obj5.update_orderitem()
-#obj5.delete_orderitem()
-
-
+           print(f"error  in deleting:{e}")
 
 
 

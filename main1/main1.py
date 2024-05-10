@@ -87,6 +87,9 @@ def main():
                 obj_e.delete_orderitem()
             else:
                 print("Invalid choice. Please try again.")
+            continue_choice=input("To continue press 'y', to stop press 'n':")
+            if continue_choice.lower() == 'n':
+                break
 
 if __name__ == "__main__":
     main()
